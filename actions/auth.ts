@@ -13,7 +13,7 @@ export async function login(prevState: { error: string }, formData: FormData) {
     return { error: 'Email dan password wajib diisi' }
   }
 
-  const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+  const { error: authError } = await supabase.auth.signInWithPassword({
     email,
     password,
   })
@@ -22,11 +22,17 @@ export async function login(prevState: { error: string }, formData: FormData) {
     return { error: authError.message }
   }
 
+  // Verify session is established before querying role
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'Gagal mendapatkan session user' }
+  }
+
   // Get user role from the users table
   const { data: profile } = await supabase
     .from('users')
     .select('role')
-    .eq('id', authData.user.id)
+    .eq('id', user.id)
     .single()
 
   if (profile?.role === 'grand_admin') {

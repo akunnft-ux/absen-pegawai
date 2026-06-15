@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useRouter } from "next/navigation"
 import { useAuth } from "@/hooks/useAuth"
 
 interface HeaderProps {
@@ -21,7 +22,13 @@ interface HeaderProps {
 }
 
 export function Header({ onMenuClick, title = "Dashboard" }: HeaderProps) {
+  const router = useRouter()
   const { profile, signOut } = useAuth()
+
+  const handleLogout = async () => {
+    await signOut()
+    router.push("/login")
+  }
 
   const initials = profile?.full_name
     ? profile.full_name
@@ -85,7 +92,7 @@ export function Header({ onMenuClick, title = "Dashboard" }: HeaderProps) {
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="cursor-pointer text-destructive focus:text-destructive"
-            onClick={signOut}
+            onClick={handleLogout}
           >
             Logout
           </DropdownMenuItem>
